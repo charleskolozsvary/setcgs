@@ -1,6 +1,6 @@
 {
   "files": [
-      "utils/image_ops.py",
+      "image_ops.py",
       "solve.py",
       "extract.py",
       "identify.py"

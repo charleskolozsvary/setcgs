@@ -3,17 +3,16 @@ import numpy as np
 import math
 import statistics
 from copy import deepcopy
-# import streamlit as st
 
 BLUR_SIZE = 7
 GAUSSIAN_DEV = 1000
-BINARY_CAP = 165 #needs to be well-lit environment ¯\_(ツ)_/¯ (or does it?)
-QUADRANGLE_TOLERANCE = .05 #0.1
-CARDSIZE_TOLERANCE_UPPER = 2 #2.5
-CARDSIZE_TOLERANCE_LOWER = 1/2 #2/5
+BINARY_CAP = 165 # needs to be well-lit environment ¯\_(ツ)_/¯ (or does it?)
+QUADRANGLE_TOLERANCE = .05 # 0.1
+CARDSIZE_TOLERANCE_UPPER = 2 # 2.5
+CARDSIZE_TOLERANCE_LOWER = 1/2 # 2/5
 NUM_CARDS_FOR_MEDIAN_HIGH = 15
 NUM_CARDS_FOR_MEDIAN_LOW = 4
-NUM_MAX_CARDS = 100 #in case of duplicates, which will be dealt with in find.py
+NUM_MAX_CARDS = 100 # in case of duplicates, which will be dealt with in find.py
 
 R_1 = [(0, 0, 165), (180, 65, 255)]
 R_2 = [(0, 0, 65), (180, 65, 255)]
@@ -40,7 +39,7 @@ def inRadius(candidate_centroid, equiv_class_centroid):
 
 def uniqueContours(contours, centers):
     contour_partition = {}
-    centroid_partition = {} #equivalence classes
+    centroid_partition = {} # equivalence classes
     size_of_partition = 0
     for i, cnt in enumerate(contours):
         centroid = centers[i]
@@ -51,16 +50,16 @@ def uniqueContours(contours, centers):
         count = 0
         for key in contour_partition:
             if inRadius(centroid, centroid_partition[key]):
-                contour_partition[key].append(cnt) #'''deepcopy'''
+                contour_partition[key].append(cnt) # '''deepcopy'''
                 centroid_partition[key].append( (centroid, radius) )
                 count += 1
         if count == 0:
-            contour_partition[size_of_partition] = [cnt] #'''deepcopy'''
+            contour_partition[size_of_partition] = [cnt] # '''deepcopy'''
             centroid_partition[size_of_partition] = [(centroid, radius)]
             size_of_partition += 1
         
     unique_contours = []
-    #get representatives, choosing contours with the least number of points
+    # get representatives, choosing contours with the least number of points
     for key, equiv_class in contour_partition.items():
         largestContourArea = max(list(map(lambda x : cv.contourArea(x), equiv_class)))
         def func(x):
@@ -68,8 +67,8 @@ def uniqueContours(contours, centers):
             return area < largestContourArea * 2.25 and area > largestContourArea * 0.35
         largest_within_max = sorted(list(filter(func, equiv_class)), key = cv.contourArea, reverse = True)[:max(len(RANGES), 3)]
         smallest_by_contour_len = sorted(largest_within_max, key = len)
-        representative_contour = smallest_by_contour_len[0].copy() #smallest_by_contour_len# #'''deepcopy'''
-        unique_contours.append(representative_contour) #pick the contour with the least number of points
+        representative_contour = smallest_by_contour_len[0].copy() # smallest_by_contour_len# #'''deepcopy'''
+        unique_contours.append(representative_contour) # pick the contour with the least number of points
         
         
     return unique_contours
@@ -84,7 +83,7 @@ def filterContours(orig, contours):
     largestQuads = sorted(quads, key = cv.contourArea, reverse = True)
     intermediate = list(map(lambda x : cv.contourArea(x), largestQuads))
     largestAreas1 = intermediate[:NUM_CARDS_FOR_MEDIAN_HIGH]
-    largestAreas2 = intermediate[:NUM_CARDS_FOR_MEDIAN_LOW] #'''deepcopy'''
+    largestAreas2 = intermediate[:NUM_CARDS_FOR_MEDIAN_LOW] # '''deepcopy'''
     
     if len(largestAreas1) == 0:
         return []
@@ -105,7 +104,7 @@ def thresholdAndFilterContours(hsv_img, ranges, extra_threshs):
         threshs.append(thresh)
     
     for thresh in threshs:
-#        st.image(thresh)
+#        streamlit.image(thresh)
         conts, _ = cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
         filteredContours = filterContours(hsv_img, conts)
         for cnt in filteredContours:
@@ -137,8 +136,8 @@ def standardize(quadrangle):
     height = min(math.dist(topLeft, bottomLeft), math.dist(topRight, bottomRight))
     return np.float32([topRight, topLeft, bottomLeft, bottomRight]), width, height
     
-''' MOST GOING ON HERE '''
 def getCardImagesAndTheirContours(orig_img):
+    ''' main method for this module '''
     hsv_img = cv.cvtColor(orig_img, cv.COLOR_RGB2HSV)
     gray_img = cv.cvtColor(orig_img, cv.COLOR_RGB2GRAY)
     blurred = cv.GaussianBlur(gray_img, (BLUR_SIZE, BLUR_SIZE), GAUSSIAN_DEV, GAUSSIAN_DEV)

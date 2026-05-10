@@ -5,24 +5,30 @@
 # Returns:  a list of PIL.Image objects (or bytes/base64 strings).
 #
 # Package installation (e.g. pillow) is handled by app.js via the
-# "packages" list in manifest.json — do NOT use micropip here.
+# "packages" list in manifest.json — micropip is not loaded here 
+# for PyPI package (of which there are likely to be none)
 
+import numpy as np
+from PIL import Image
 import time
-import solve # removeDuplicateCards, getSets, displaySets
-import extract # getCardImagesAndTheirContours
-import identify # getCardLabels
-from utils.image_ops import invert, _load_as_array, array_to_pil_image
+import solve 
+import extract 
+import identify 
+from image_ops import load_as_array, array_to_pil_image
 
-def find_sets(orig_img): #img is in RGB
+def find_sets(orig_img: np.ndarray):
+    ''' orig_img is RGB '''
     s1 = time.time()
     cardImages, cardContours, cardCenters = extract.getCardImagesAndTheirContours(orig_img)
     e1 = time.time()
     t1 = e1 - s1
+    
     # st.write('Time spent extracting cards:', t1)
     s2 = time.time()
     cardLabels = identify.getCardLabels(cardImages)
     e2 = time.time()
     t2 = e2 - s2
+    
     # st.write('Time spent identifying cards:', t2)
     cards, unique_contours, unique_positions = solve.removeDuplicateCards(
         cardContours,
@@ -37,20 +43,28 @@ def find_sets(orig_img): #img is in RGB
     sets = solve.getSets(cards)
     e4 = time.time()
     t4 = e4 - s4
+    
     # st.write('Time spent finding sets:', t4)
     s5 = time.time()
-    solutions, labels = solve.displaySets(orig_img, sets, unique_contours, unique_positions, cards.keys())
+    solutions, labels = solve.displaySets(
+        orig_img,
+        sets,
+        unique_contours,
+        unique_positions,
+        cards.keys()
+    )
     e5 = time.time()
     t5 = e5 - s5
+    
     # st.write('Time spent displaying sets:', t5)
     return solutions, labels
 
-def main(image_bytes: bytes) -> list:
+def main(image_bytes: bytes) -> list[Image.Image]:
     """
     Receives raw image bytes from the browser.
-    Returns a list of PIL.Image objects to display in the gallery.
+    Returns a list of PIL Image.Image objects to display in the gallery.
     """
-    opencv_image = _load_as_array(image_bytes)
+    opencv_image = load_as_array(image_bytes)
     sets, labelings = find_sets(opencv_image)
     results = [labelings, *sets]
 
@@ -58,11 +72,3 @@ def main(image_bytes: bytes) -> list:
         array_to_pil_image(res)
         for res in results
     ]
-    
-    # return [
-    #     # grayscale(image_bytes),   # 1 — greyscale
-    #     # flip_h(image_bytes),      # 2 — mirror
-    #     # flip_v(image_bytes),      # 3 — flip
-    #     invert(image_bytes),      # 4 — colour invert
-    #     # return_through_cv(image_bytes),
-    # ]
