@@ -3,14 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Set Solver</title>
+  <title>Set Card Game Solver</title>
   <link rel="stylesheet" href="styles.css" />
   <!-- Pyodide -->
   <script src="https://cdn.jsdelivr.net/pyodide/v0.27.3/full/pyodide.js"></script>
 </head>
 <body>
-
-  <div class="grid-bg"></div>
 
   <main>
     <header>
@@ -25,7 +23,7 @@
     <!-- Status bar -->
     <div class="status-bar" id="statusBar">
       <span class="status-dot" id="statusDot"></span>
-      <span id="statusText">Initialising Pyodide runtime…</span>
+      <span id="statusText">Initialising Pyodide runtime...</span>
     </div>
 
     <!-- Upload zone -->
@@ -48,16 +46,23 @@
       </div>
 
       <button class="run-btn" id="runBtn" disabled>
-        <span class="run-label">Run <code>main.py</code></span>
+        <span class="run-label">Identify sets</span>
         <span class="run-arrow">→</span>
       </button>
     </section>
 
     <!-- Output gallery -->
-    <section class="output-section" id="outputSection" hidden>
-      <h2 class="section-title">Card Labels and Sets <span id="outputCount"></span></h2>
-      <div class="gallery" id="gallery"></div>
+    <!-- Labels -->
+    <section class="output-section" id="outputLabels" hidden>
+      <h1 class="section-title">Labeled Cards</h1>
+      <div class="gallery" id="galleryLabels"></div>
     </section>
+
+    <!-- Sets -->
+    <section class="output-section" id="outputSets" hidden>
+      <h1 class="section-title">Sets <span id="setCount"></span></h1>
+      <div class="gallery" id="gallerySets"></div>
+    </section>    
 
     <!-- Python error display -->
     <div class="error-box" id="errorBox" hidden>

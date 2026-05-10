@@ -30,7 +30,7 @@
 }
 
 /* ── Base ─────────────────────────────────────────────────── */
-html { font-size: 27px; }
+html { font-size: 24px; }
 
 body {
   background: var(--bg);
@@ -48,7 +48,7 @@ body {
 main {
   position: relative;
   z-index: 1;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 60px 24px 80px;
   display: flex;

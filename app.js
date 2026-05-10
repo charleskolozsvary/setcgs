@@ -13,9 +13,13 @@ const previewRow    = document.getElementById('previewRow');
 const previewImg    = document.getElementById('previewImg');
 const previewMeta   = document.getElementById('previewMeta');
 const runBtn        = document.getElementById('runBtn');
-const outputSection = document.getElementById('outputSection');
-const outputCount   = document.getElementById('outputCount');
-const gallery       = document.getElementById('gallery');
+// const outputSection = document.getElementById('outputSection');
+const outputLabels  = document.getElementById('outputLabels');
+const outputSets    = document.getElementById('outputSets');
+const setCount      = document.getElementById('setCount');
+// const gallery       = document.getElementById('gallery');
+const galleryLabels = document.getElementById('galleryLabels');
+const gallerySets   = document.getElementById('gallerySets');
 const errorBox      = document.getElementById('errorBox');
 const errorText     = document.getElementById('errorText');
 
@@ -37,7 +41,7 @@ async function initPyodide() {
 	await mountPythonPackage();
 	setStatus('ready', 'Runtime ready — upload an image to begin');
     } catch (err) {
-	setStatus('error', `Failed to initialise: ${err.message}`);
+	setStatus('error', `Failed to initialize: ${err.message}`);
 	console.error(err);
     }
 }
@@ -132,9 +136,17 @@ function handleFile(file) {
 
     runBtn.disabled = (pyodide === null);
 
-    outputSection.hidden = true;
+    // outputSection.hidden = true;
+    outputSets.hidden = true;
+    outputLabels.hidden = true;
+
+    setCount.textContent = '';
+
+    setStatus('ready', 'Runtime ready — click “Identify Sets”');
+    
     errorBox.hidden = true;
-    gallery.innerHTML = '';
+    galleryLabels.innerHTML = '';
+    gallerySets.innerHTML = '';
 }
 
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
@@ -150,11 +162,17 @@ fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
 runBtn.addEventListener('click', async () => {
     if (!pyodide || !uploadedFile) return;
 
-    setStatus('running', 'Running main.py...');
+    setStatus('running', 'Running...');
     runBtn.disabled = true;
     errorBox.hidden = true;
-    outputSection.hidden = true;
-    gallery.innerHTML = '';
+    
+    outputSets.hidden = true;
+    outputLabels.hidden = true;
+    setCount.textContent = '';    
+    
+    // outputSection.hidden = true;
+    galleryLabels.innerHTML = '';
+    gallerySets.innerHTML = '';    
 
     try {
 	const arrayBuffer = await uploadedFile.arrayBuffer();
@@ -194,8 +212,12 @@ if not hasattr(_result, '__iter__') or isinstance(_result, (str, bytes, bytearra
 
 	if (!b64List || b64List.length === 0) throw new Error('main() returned no images.');
 
-	outputCount.textContent = `(${b64List.length})`;
-	outputSection.hidden = false;
+	const num_sets = b64List.length - 1;
+
+	setCount.textContent = `(${num_sets})`;
+	
+	outputLabels.hidden = false;
+	outputSets.hidden = false;	
 
 	b64List.forEach((b64, idx) => {
 	    const dataUrl = `data:image/png;base64,${b64}`;
@@ -215,9 +237,9 @@ if not hasattr(_result, '__iter__') or isinstance(_result, (str, bytes, bytearra
 	    const label = document.createElement('span');
 	    label.className = 'card-label';
 	    if (idx === 0) {
-		label.textContent = `${uploaded_basename}_labeled.png`;
+		label.textContent = `${uploaded_basename}_labeled_cards.png`;
 	    } else {
-		label.textContent = `set_${String(idx).padStart(2, '0')}.png`;
+		label.textContent = `${uploaded_basename}_set_${String(idx).padStart(2, '0')}.png`;
 	    }
 
 	    const dl = document.createElement('a');
@@ -230,13 +252,17 @@ if not hasattr(_result, '__iter__') or isinstance(_result, (str, bytes, bytearra
 	    footer.appendChild(dl);
 	    card.appendChild(img);
 	    card.appendChild(footer);
-	    gallery.appendChild(card);
+	    if (idx === 0) {
+		galleryLabels.appendChild(card);
+	    } else {
+		gallerySets.appendChild(card);
+	    }
 	});
 
-	setStatus('ready', `Done — ${b64List.length} image${b64List.length !== 1 ? 's' : ''} returned`);
+	setStatus('ready', `Done — There ${num_sets === 1 ? 'is' : 'are'} ${num_sets} set${num_sets === 1 ? '' : 's'}`);
 
     } catch (err) {
-	setStatus('error', 'Python error — see details below');
+	setStatus('error', 'Error — see details below');
 	errorBox.hidden = false;
 	errorText.textContent = err.message ?? String(err);
 	console.error(err);
