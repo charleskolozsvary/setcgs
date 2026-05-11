@@ -11,7 +11,7 @@ This is a computer vision python project that solves the card game [Set](https:/
 ## Example[^2]
 Here's an image with some sets:
 
-<img src='examples/example0.jpg' width='800'>
+<img src='examples/example.jpg' width='800'>
 
 ### Identifying features
 Every card in *Set* has four features, each of which have three varieties. 
