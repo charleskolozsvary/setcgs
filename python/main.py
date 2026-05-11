@@ -23,13 +23,13 @@ def find_sets(orig_img: np.ndarray):
     e1 = time.time()
     t1 = e1 - s1
     
-    # st.write('Time spent extracting cards:', t1)
+    print('Time spent extracting cards:', t1)
     s2 = time.time()
     cardLabels = identify.getCardLabels(cardImages)
     e2 = time.time()
     t2 = e2 - s2
     
-    # st.write('Time spent identifying cards:', t2)
+    print('Time spent identifying cards:', t2)
     cards, unique_contours, unique_positions = solve.removeDuplicateCards(
         cardContours,
         cardCenters,
@@ -44,7 +44,7 @@ def find_sets(orig_img: np.ndarray):
     e4 = time.time()
     t4 = e4 - s4
     
-    # st.write('Time spent finding sets:', t4)
+    print('Time spent finding sets:', t4)
     s5 = time.time()
     solutions, labels = solve.displaySets(
         orig_img,
@@ -56,8 +56,22 @@ def find_sets(orig_img: np.ndarray):
     e5 = time.time()
     t5 = e5 - s5
     
-    # st.write('Time spent displaying sets:', t5)
+    print('Time spent displaying sets:', t5)
     return solutions, labels
+
+MAX_PX = 1024  # tune to taste
+
+def _shrink(img: np.ndarray):
+    """
+    No need to preserve resolution for output images, really.
+    It looks like returning several high resolution images slows things
+    down a fair margin---up to tens of seconds.
+    """
+    w, h = img.size
+    scale = min(1.0, MAX_PX / max(w, h))
+    if scale == 1.0:
+        return img
+    return img.resize((round(w * scale), round(h * scale)), Image.LANCZOS)
 
 def main(image_bytes: bytes) -> list[Image.Image]:
     """
@@ -69,6 +83,6 @@ def main(image_bytes: bytes) -> list[Image.Image]:
     results = [labelings, *sets]
 
     return [
-        array_to_pil_image(res)
+        _shrink(array_to_pil_image(res))
         for res in results
     ]
