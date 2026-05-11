@@ -217,7 +217,7 @@ def getCardLabels(cardImgs):
     total_time = 0
     for i, cardImg in enumerate(cardImgs):
         assert total_time < MAX_TIME, 'It has taken longer than '+str(MAX_TIME)+' seconds to identify the cards...'
-#        st.write(str(total_time))
+        print(i, str(total_time))
         start = time.time()
         color, filling, number, shape = labelCard(cardImg)
         labels.append((color, shape, number, filling))

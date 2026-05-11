@@ -10,7 +10,7 @@ import time
 
 DISPLAY_SET_COLOR = (25, 75, 225)
 LABEL_COLOR = (50, 120, 225)
-CONTOUR_WIDTH_PROP = 0.0005
+CONTOUR_WIDTH_PROP = 0.000375
 TEXT_SCALING_PROP = 0.0000125
 MIN_CONTOUR_DRAW_WIDTH = 15
 MIN_TEXT_SIZE = 1
@@ -76,7 +76,6 @@ def remove_insert(arr, old, new, idx):
                 break
         else:
             print('old contour was not present')
-            # st.write('old contour was not present')
     else:
         arr.remove(old)
         arr.insert(idx, new)
@@ -89,7 +88,6 @@ def removeDuplicateCards(contours, positions, labels, center_of_img, imgs, orig_
         key = ':'.join([label[0][0], label[1][:2], label[2][0], label[3][0]]).upper()
         if key in cards.keys():
             print('duplicate handled...')
-            # st.write('duplicate handeled...')
             if dist(positions[i], center_of_img) < dist(unique_positions[cards[key]], center_of_img):
                 remove_insert(unique_contours, unique_contours[cards[key]], contours[i], cards[key])
                 remove_insert(unique_positions, unique_positions[cards[key]], positions[i], cards[key])

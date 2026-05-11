@@ -104,7 +104,7 @@ def thresholdAndFilterContours(hsv_img, ranges, extra_threshs):
         threshs.append(thresh)
     
     for thresh in threshs:
-#        streamlit.image(thresh)
+#        st.image(thresh)
         conts, _ = cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
         filteredContours = filterContours(hsv_img, conts)
         for cnt in filteredContours:
