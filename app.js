@@ -119,11 +119,34 @@ import micropip
 await micropip.install(${JSON.stringify(packages)})
     `);
     }
+    
+    // Import main once now — subsequent runs call _main_module directly.
+    pyodide.runPython('import main as _main_module');    
 }
 
 // -- 3. File upload & preview -------------------------------
-function handleFile(file) {
+// -- Image normalisation ------------------------------------
+// Only HEIC/HEIF needs conversion — the browser can decode them natively
+// via createImageBitmap on Safari/iOS, then we re-encode as PNG.
+// other image formats are untouched
+async function normaliseImageFile(file) {
+    const isHeic = /\.hei[cf]$/i.test(file.name) || file.type === 'image/heic' || file.type === 'image/heif';
+    if (!isHeic) return file;
+
+    setStatus('loading', 'Converting HEIC to PNG...');
+    const bitmap = await createImageBitmap(file);
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    canvas.getContext('2d').drawImage(bitmap, 0, 0);
+    bitmap.close();
+    const blob     = await canvas.convertToBlob({ type: 'image/png' });
+    const baseName = file.name.replace(/\.hei[cf]$/i, '.png');
+    return new File([blob], baseName, { type: 'image/png' });
+}
+
+// -- 3. File upload & preview -------------------------------
+async function handleFile(file) {
     if (!file || !file.type.startsWith('image/')) return;
+    file = await normaliseImageFile(file);    
     uploadedFile = file;
 
     const url = URL.createObjectURL(file);
@@ -163,6 +186,7 @@ runBtn.addEventListener('click', async () => {
     if (!pyodide || !uploadedFile) return;
 
     setStatus('running', 'Running...');
+    console.time('timer');
     runBtn.disabled = true;
     errorBox.hidden = true;
     
@@ -179,9 +203,7 @@ runBtn.addEventListener('click', async () => {
 	pyodide.globals.set('_input_bytes', new Uint8Array(arrayBuffer));
 
 	const resultProxy = await pyodide.runPythonAsync(`
-import sys, io, base64, importlib
-import main as _main_module
-importlib.reload(_main_module)   # pick up any edits without re-mounting
+import sys, io, base64
 
 _img_bytes = bytes(_input_bytes.to_py())
 _result = _main_module.main(_img_bytes)
@@ -260,6 +282,7 @@ if not hasattr(_result, '__iter__') or isinstance(_result, (str, bytes, bytearra
 	});
 
 	setStatus('ready', `Done — There ${num_sets === 1 ? 'is' : 'are'} ${num_sets} set${num_sets === 1 ? '' : 's'}`);
+	console.timeEnd('timer');
 
     } catch (err) {
 	setStatus('error', 'Error — see details below');
