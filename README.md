@@ -1,5 +1,5 @@
 # Set card game solver (setcgs)
-This computer vision web application solves the card game [Set](https://en.wikipedia.org/wiki/Set_(card_game)). The sets are identified from an uploaded image. 
+A computer vision web application that solves the card game [Set](https://en.wikipedia.org/wiki/Set_(card_game)). The sets are identified from an uploaded image. 
 
 ## Usage
 1. Go to https://charleskolozsvary.github.io/setcgs
