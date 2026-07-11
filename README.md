@@ -1,14 +1,19 @@
 # Set card game solver (setcgs)
-This is a computer vision python project that solves the card game [Set](https://en.wikipedia.org/wiki/Set_(card_game)). The sets are identified from an uploaded image. 
+This computer vision web application solves the card game [Set](https://en.wikipedia.org/wiki/Set_(card_game)). The sets are identified from an uploaded image. 
 
 ## Usage
 1. Go to https://charleskolozsvary.github.io/setcgs
-2. Upload an image (with cards from Set).[^4]
+2. Upload an image (with cards from Set).
    - For best results, ensure the photo is well-lit, the background is relatively uniform, and there is minimal glare. But these conditions are forunately not *too* strict---image quality is generally more important, but any modern phone camera provides plenty of resolution.[^1]
-3. Click `run main.py` and view the labelled cards and sets![^3]
+3. Click "Identify sets", wait 15 seconds or so, then view the labelled cards and sets!
    - If the cards were labelled correctly and no sets are highlighted, there were none.
+  
+## Demo Screencast
+<a href="https://www.youtube.com/watch?v=xK-QXZqr05M">
+  <img width="444" height="316" alt="A phone screencast of using the setcgs web app" src="https://github.com/user-attachments/assets/552b06c4-45a7-45f3-b0a8-d544e777c8c9" />
+</a>
 
-## Example[^2]
+## Walked through example[^2]
 Here's an image with some sets:
 
 <img src='examples/example.jpg' width='800'>
@@ -39,8 +44,3 @@ There end up being 5 sets among those cards. Here they are highlighted (as outpu
 [^1]: I'm relatively happy with this program's success rate. It correctly identifies cards most of the time, but there's definitely room for improvement. If the image resolution is low, lighting is poor, cards are touching or obscurred, the background is unusual, or glare is prevalent, the cards may not be identified correctly (and so neither will the sets).
 
 [^2]: You can also view the printed-page output for this example at [examples/exampleoutput.pdf](examples/exampleoutput.pdf).
-
-
-[^3]: If there are any.
-
-[^4]: Currently, .HEIC images (what Apple uses) are not supported, so a picture uploaded directly from an apple device camera roll will not work. If you take a screenshot of the image then upload it, it will work, though.
